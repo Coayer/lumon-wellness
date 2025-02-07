@@ -1,0 +1,59 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+}
+
+body {
+  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 20%, #002a2a, #000);
+}
+
+div {
+  padding: 0px 10px 20px;
+  border-radius: 40px;
+  box-shadow: 0 0 50px 50px #000;
+  background: #000;
+}
+
+.canvas-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box; /* Include padding in the element's total width and height */
+}
+
+/* For horizontal screens */
+@media (min-aspect-ratio: 4/3) {
+  .canvas-container {
+    width: calc(95vh * 4 / 3); /* Width based on height to maintain 4:3 aspect ratio */
+    height: 95vh; /* Height based on viewport height */
+  }
+}
+
+/* For vertical screens */
+@media (max-aspect-ratio: 4/3) {
+  .canvas-container {
+    width: 95vw; /* Width based on viewport width */
+    height: calc(95vw * 3 / 4); /* Height based on width to maintain 4:3 aspect ratio */
+  }
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@font-face {
+  font-family: 'InputSans';
+  src: url('Input-Regular_(InputSans-Regular).ttf') format('truetype');
+}
