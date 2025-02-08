@@ -1,3 +1,4 @@
 .DS_Store
-www/audio/*
+www/audio/greeting.wav
+www/audio/latest_fact.wav
 www/transcripts/*

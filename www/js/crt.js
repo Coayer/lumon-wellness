@@ -3,11 +3,7 @@ const onecolor = one.color;
 function hex2vector(cssHex) {
     const pc = onecolor(cssHex);
 
-    return vec3.fromValues(
-        pc.red(),
-        pc.green(),
-        pc.blue()
-    );
+    return vec3.fromValues(pc.red(), pc.green(), pc.blue());
 }
 
 const charW = 6;
@@ -23,27 +19,27 @@ const consolePad = 8; // in texels
 const consoleW = bufferW + consolePad * 2;
 const consoleH = bufferH + consolePad * 2;
 
-const bufferCanvas = document.createElement('canvas');
+const bufferCanvas = document.createElement("canvas");
 bufferCanvas.width = bufferW;
 bufferCanvas.height = bufferH;
 
-const bufferContext = bufferCanvas.getContext('2d');
+const bufferContext = bufferCanvas.getContext("2d");
 
-bufferContext.fillStyle = '#000';
+bufferContext.fillStyle = "#000";
 bufferContext.fillRect(0, 0, bufferW, bufferH);
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(' ');
-    let line = '';
+    const words = text.split(" ");
+    let line = "";
     let lines = [];
 
     for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
+        const testLine = line + words[n] + " ";
         const metrics = context.measureText(testLine);
         const testWidth = metrics.width;
         if (testWidth > maxWidth && n > 0) {
             lines.push(line);
-            line = words[n] + ' ';
+            line = words[n] + " ";
         } else {
             line = testLine;
         }
@@ -56,49 +52,80 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
 }
 
 const image = new Image();
-image.src = 'lumon-logo.png';
+image.src = "assets/lumon-logo.png";
+
+let displayText = "";
+setDisplayText("Click to start wellness session");
+
+async function setDisplayText(text) {
+    displayText = "";
+    for (let i = 0; i <= text.length; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 69));
+        displayText = text.slice(0, i);
+    }
+}
 
 function renderWorld() {
     // Clear the buffer
-    bufferContext.fillStyle = '#000';
+    bufferContext.fillStyle = "#000";
     bufferContext.fillRect(0, 0, bufferW, bufferH);
-  
-    // Set text properties
-    bufferContext.textAlign = 'center';
+
+    bufferContext.fillStyle = "#68b9cd";
+
+    // Session name
+    const now = new Date();
+    const dateString = now.toLocaleDateString();
+    const timeString = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+    const calendarEntry = `Wellness Session with Ms. Casey\n${dateString} ${timeString}`;
+
+    bufferContext.font = '12px "InputSans"';
+    bufferContext.textAlign = "left";
+    bufferContext.fillText("Wellness Session with Ms. Casey", 25, 25);
+    bufferContext.fillText(dateString + " " + timeString, 25, 41);
+
+    // Lumon Logo
+    bufferContext.drawImage(image, 360, 10, 516 / 5, 226 / 5);
+
+    // Horizontal line
+    bufferContext.strokeStyle = "#68b9cd";
+    bufferContext.lineWidth = 0.8;
+    bufferContext.beginPath();
+    bufferContext.moveTo(25, 50); // Starting point (x, y)
+    bufferContext.lineTo(340, 50); // Ending point (x, y)
+    bufferContext.stroke();
+
+    // Fact drawing
     bufferContext.font = '15px "InputSans"';
-    bufferContext.fillStyle = '#68b9cd';
-  
-    // Draw static text in the middle of the screen
-    const staticText = "Your Oudy can identify the precise timbre of a rusty hinge after only a few seconds.";
+
     const maxWidth = bufferW - 20; // Adjust as needed
     const lineHeight = 14; // Adjust as needed
-    const x = bufferW / 2;
+    const x = 25;
     const y = bufferH / 2;
-  
-    wrapText(bufferContext, staticText, x, y, maxWidth, lineHeight);
 
-    // Load and draw the image in the top right corner
-    bufferContext.drawImage(image, 360, 10, 516/5, 226/5);
+    wrapText(bufferContext, displayText, x, y, maxWidth, lineHeight);
 }
 
 // init WebGL
-const canvas = document.body.querySelector('canvas');
+const canvas = document.body.querySelector("canvas");
 canvas.width = 640;
 canvas.height = 480;
 
 const regl = createREGL({
     canvas: canvas,
-    attributes: { antialias: true, alpha: false, preserveDrawingBuffer: true }
+    attributes: { antialias: true, alpha: false, preserveDrawingBuffer: true },
 });
 
 const spriteTexture = regl.texture({
     width: 512,
     height: 256,
-    mag: 'linear'
+    mag: "linear",
 });
 
-const termFgColor = hex2vector('#68b9cd');
-const termBgColor = hex2vector('#002a2a');
+const termFgColor = hex2vector("#68b9cd");
+const termBgColor = hex2vector("#002a2a");
 
 const quadCommand = regl({
     vert: `
@@ -128,10 +155,10 @@ const quadCommand = regl({
         uniform vec3 bgColor;
         uniform vec3 fgColor;
 
-        #define textureW ${textureW + '.0'}
-        #define textureH ${textureH + '.0'}
-        #define consoleW ${consoleW + '.0'}
-        #define consoleH ${consoleH + '.0'}
+        #define textureW ${textureW + ".0"}
+        #define textureH ${textureH + ".0"}
+        #define consoleW ${consoleW + ".0"}
+        #define consoleH ${consoleH + ".0"}
         #define consolePadUVW ${consolePad / consoleW}
         #define consolePadUVH ${consolePad / consoleH}
         #define charUVW ${charW / consoleW}
@@ -142,7 +169,7 @@ const quadCommand = regl({
             vec2 consoleWH = vec2(consoleW, consoleH);
 
             // @todo use uniforms
-            float glitchFlutter = mod(time * 40.0, 1.0); // timed to be slightly out of sync from main frame rate
+            float glitchFlutter = mod(time * 100.0, 1.0); // timed to be slightly out of sync from main frame rate
 
             vec2 center = uvPosition - vec2(0.5);
             float factor = dot(center, center) * 0.2;
@@ -161,7 +188,7 @@ const quadCommand = regl({
                 float intensity = 8.0 - scanlineAmount * 5.0; // ray intensity is over-amped by default
                 vec2 uvAdjustment = inTexelOffset * vec2(0.0, .4 / consoleH); // remove vertical texel interpolation
 
-                distortedUVPosition.x -= 0.011 * (glitchFlutter * glitchFlutter * glitchFlutter);
+                distortedUVPosition.x -= 0.007 * (glitchFlutter * glitchFlutter * glitchFlutter);
 
                 vec4 sourcePixel = texture2D(
                     sprite,
@@ -186,54 +213,54 @@ const quadCommand = regl({
 
     attributes: {
         position: regl.buffer([
-            [ -1, -1, 0 ],
-            [ 1, -1, 0 ],
-            [ -1, 1, 0 ],
-            [ 1, 1, 0 ]
-        ])
+            [-1, -1, 0],
+            [1, -1, 0],
+            [-1, 1, 0],
+            [1, 1, 0],
+        ]),
     },
 
     uniforms: {
-        time: regl.context('time'),
-        camera: regl.prop('camera'),
+        time: regl.context("time"),
+        camera: regl.prop("camera"),
         sprite: spriteTexture,
-        bgColor: regl.prop('bgColor'),
-        fgColor: regl.prop('fgColor')
+        bgColor: regl.prop("bgColor"),
+        fgColor: regl.prop("fgColor"),
     },
 
-    primitive: 'triangle strip',
+    primitive: "triangle strip",
     count: 4,
 
     depth: {
-        enable: false
+        enable: false,
     },
 
     blend: {
         enable: true,
         func: {
-            src: 'src alpha',
-            dst: 'one minus src alpha'
-        }
-    }
+            src: "src alpha",
+            dst: "one minus src alpha",
+        },
+    },
 });
 
 regl.clear({
     depth: 1,
-    color: [ 0, 0, 0, 1 ]
+    color: [0, 0, 0, 1],
 });
 
 // main loop
 function rafBody() {
-  renderWorld();  
+    renderWorld();
 
-  regl.poll();
-  spriteTexture.subimage(bufferContext, consolePad, consolePad);
-  quadCommand({
-      bgColor: termBgColor,
-      fgColor: termFgColor
-  });
+    regl.poll();
+    spriteTexture.subimage(bufferContext, consolePad, consolePad);
+    quadCommand({
+        bgColor: termBgColor,
+        fgColor: termFgColor,
+    });
 
-  requestAnimationFrame(rafBody);
+    requestAnimationFrame(rafBody);
 }
 
 // kickstart the loop

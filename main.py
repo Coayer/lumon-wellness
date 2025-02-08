@@ -141,9 +141,6 @@ if __name__ == "__main__":
     VOICE_MODEL = PiperVoice.load("piper/en_US-amy-medium.onnx")
     logging.info("Voice model loaded")
 
-    if not os.path.isdir(AUDIO_PATH):
-        os.makedirs(AUDIO_PATH)
-
     if not os.path.isdir(TRANSCRIPT_PATH):
         os.makedirs(TRANSCRIPT_PATH)
 

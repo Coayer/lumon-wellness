@@ -55,5 +55,5 @@ canvas {
 
 @font-face {
   font-family: 'InputSans';
-  src: url('Input-Regular_(InputSans-Regular).ttf') format('truetype');
+  src: url('assets/InputSans-Regular.ttf') format('truetype');
 }
