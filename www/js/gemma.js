@@ -1,13 +1,13 @@
-function presentMessage(message) {
+function presentMessage(file) {
     return new Promise((resolve) => {
-        fetch(`../transcripts/${message}.txt`)
-            .then((response) => response.text())
-            .then((text) => {
-                setDisplayText(text);
-            });
-
-        var audio = new Audio(`../audio/${message}.wav`);
+        var audio = new Audio(`../audio/speech/${file}.m4a`);
         audio.play();
+
+        fetch(`../audio/speech/transcripts.json`)
+            .then((response) => response.json())
+            .then((transcripts) => {
+                setDisplayText(transcripts[file] || "");
+            });
 
         audio.addEventListener("ended", function () {
             setDisplayText("");
@@ -20,22 +20,17 @@ window.addEventListener("load", function () {
     document.body.addEventListener(
         "click",
         async () => {
-            var audio = new Audio("../audio/elevator.m4a");
-            audio.play();
+            // var elevatorAudio = new Audio("../audio/elevator.mp3");
+            // elevatorAudio.play();
 
             setDisplayText("");
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            var noiseAudio = new Audio("../audio/noise.m4a");
-            noiseAudio.loop = true;
-            noiseAudio.play();
+            // var wellnessAudio = new Audio("../audio/other/music.m4a");
+            // wellnessAudio.loop = true;
+            // wellnessAudio.play();
 
-            var wellnessAudio = new Audio("../audio/wellness.m4a");
-            wellnessAudio.loop = true;
-            wellnessAudio.play();
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            await presentMessage("greeting");
+            // await new Promise((resolve) => setTimeout(resolve, 1000));
+            // await presentMessage("hello");
             await main();
         },
         { once: true }
@@ -43,8 +38,8 @@ window.addEventListener("load", function () {
 });
 
 async function main() {
-    while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await presentMessage("latest_fact");
-    }
+    // while (true) {
+    //     await new Promise((resolve) => setTimeout(resolve, 2000));
+    //     await presentMessage("latest_fact");
+    // }
 }
