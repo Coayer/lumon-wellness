@@ -1,14 +1,17 @@
+// Modified from Nick Matantsev's WebGL CRT Neon Matrix Effect
+// https://codepen.io/unframework/pen/pqorjJ
+
 function hex2vector(cssHex) {
     const pc = onecolor(cssHex);
 
     return vec3.fromValues(pc.red(), pc.green(), pc.blue());
 }
 
-// function handleMouseMove(event) {
-//     const rect = canvas.getBoundingClientRect();
-//     mouseX = event.clientX - rect.left;
-//     mouseY = event.clientY - rect.top;
-// }
+function handleMouseMove(event) {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
+}
 
 function handleMouseDown(event) {
     const rect = canvas.getBoundingClientRect();
@@ -20,8 +23,13 @@ function handleMouseDown(event) {
     }
 }
 
-function wrapText(text, x, y, maxWidth, lineHeight) {
-    const words = text.split(" ");
+function drawDisplayText() {
+    const maxWidth = bufferW - 50;
+    const lineHeight = 18;
+    const x = 25;
+    const y = bufferH / 2;
+
+    const words = displayText.split(" ");
     let line = "";
     let lines = [];
 
@@ -43,10 +51,10 @@ function wrapText(text, x, y, maxWidth, lineHeight) {
     }
 }
 
-async function setDisplayText(text) {
+async function setDisplayText(text, updateRate = 55) {
     displayText = "";
     for (let i = 0; i <= text.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 55));
+        await new Promise((resolve) => setTimeout(resolve, updateRate));
         displayText = text.slice(0, i);
     }
 }
@@ -82,26 +90,23 @@ function renderWorld() {
     // Lumon Logo
     bufferContext.drawImage(logo, 360, 10, 516 / 5, 226 / 5);
 
-    // bufferContext.fillText(`Mouse: (${mouseX}, ${mouseY})`, 25, 100);
+    bufferContext.fillText(`Mouse: (${mouseX}, ${mouseY})`, 25, 100);
 
     // i'm drawing the line right here
     drawLine(25, 50, 340, 50);
 
     // Fact drawing
     bufferContext.font = '15px "InputSans"';
-    const maxWidth = bufferW - 20;
-    const lineHeight = 14;
-    const x = 25;
-    const y = bufferH / 2;
-    wrapText(displayText, x, y, maxWidth, lineHeight);
+    drawDisplayText();
 
     drawLine(25, 207, 455, 207);
 
     bufferContext.font = '12px "InputSans"';
-    bufferContext.fillText("Made by Copeland R.", 313, 225);
-    drawLine(374, 230, 457, 230, 0.5); // 61 deltaX to made by, 83 length
+    bufferContext.fillText("Made by Copeland R.", 25, 225);
+    drawLine(86, 230, 169, 230, 0.5); // 61 deltaX to made by, 83 length
 
-    // This website is a fan-made art piece inspired by [TV Show Name]. The theme music, images, and text-to-speech content used on this site are the property of their respective owners. This site is not affiliated with, endorsed by, or sponsored by [TV Show Name], its creators, or any associated entities. The use of these materials is intended for non-commercial, transformative purposes under the doctrine of fair use. If you are the owner of any content used on this site and wish for it to be removed, please contact us at [Your Contact Information].
+    bufferContext.font = '7px "InputSans"';
+    bufferContext.fillText("Copyright", 419, 235);
 }
 
 const onecolor = one.color;
@@ -135,7 +140,6 @@ const logo = new Image();
 logo.src = "assets/lumon-logo.png";
 
 let displayText = "";
-setDisplayText("Click to start wellness session");
 
 // init WebGL
 const canvas = document.body.querySelector("canvas");
@@ -200,7 +204,7 @@ const quadCommand = regl({
             vec2 consoleWH = vec2(consoleW, consoleH);
 
             // @todo use uniforms
-            float glitchFlutter = mod(time * 100.0, 1.0); // timed to be slightly out of sync from main frame rate
+            float glitchFlutter = mod(time * 75.0, 1.0); // timed to be slightly out of sync from main frame rate
 
             vec2 center = uvPosition - vec2(0.5);
             float factor = dot(center, center) * 0.2;
