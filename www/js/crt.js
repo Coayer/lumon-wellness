@@ -7,19 +7,15 @@ function hex2vector(cssHex) {
     return vec3.fromValues(pc.red(), pc.green(), pc.blue());
 }
 
-function handleMouseMove(event) {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = event.clientX - rect.left;
-    mouseY = event.clientY - rect.top;
-}
-
 function handleMouseDown(event) {
     const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
-
-    if (clickY / rect.height > 0.84 && clickX / rect.width > 0.62) {
+    const clickX = (event.clientX - rect.left) / rect.width;
+    const clickY = (event.clientY - rect.top) / rect.height;
+    // console.log(clickX, clickY);
+    if (clickX < 0.38 && clickY > 0.84) {
         window.open("https://copey.dev", "_blank");
+    } else if (clickX > 0.84 && clickY > 0.89) {
+        window.open("/copyright.txt", "_blank");
     }
 }
 
@@ -51,12 +47,30 @@ function drawDisplayText() {
     }
 }
 
-async function setDisplayText(text, updateRate = 55) {
+function wait(ms = 1000) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function setDisplayText(text, updateDelay = 55) {
     displayText = "";
     for (let i = 0; i <= text.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, updateRate));
+        await wait(updateDelay);
         displayText = text.slice(0, i);
     }
+}
+
+async function animateElevatorImages() {
+    currentAnimationImages.push([descent, 25, 90, 106, 74]);
+    await wait();
+    currentAnimationImages.push([walk, 131, 90, 106, 74]);
+    await wait();
+    currentAnimationImages.push([dial, 237, 90, 106, 74]);
+    await wait();
+    currentAnimationImages.push([talk, 343, 90, 106, 74]);
+    await wait();
+    currentAnimationImages = [currentAnimationImages.slice(-1)[0]];
+    await wait(2000);
+    currentAnimationImages = [];
 }
 
 function drawLine(startX, startY, endX, endY, lineWidth = 0.8) {
@@ -74,6 +88,8 @@ function renderWorld() {
     bufferContext.fillRect(0, 0, bufferW, bufferH);
     bufferContext.fillStyle = "#68b9cd";
 
+    drawLine(25, 15, 363, 15);
+
     // Session name
     const now = new Date();
     const dateString = now.toLocaleDateString();
@@ -82,28 +98,28 @@ function renderWorld() {
         minute: "2-digit",
     });
 
-    bufferContext.font = '12px "InputSans"';
+    bufferContext.font = '11px "InputSans"';
     bufferContext.textAlign = "left";
-    bufferContext.fillText("Wellness Session with Ms. Casey", 25, 25);
-    bufferContext.fillText(dateString + " " + timeString, 25, 41);
+    bufferContext.fillText("Wellness Session with Ms. Casey", 25, 29);
+    bufferContext.fillText(dateString + " " + timeString, 25, 44);
 
     // Lumon Logo
-    bufferContext.drawImage(logo, 360, 10, 516 / 5, 226 / 5);
-
-    bufferContext.fillText(`Mouse: (${mouseX}, ${mouseY})`, 25, 100);
-
+    bufferContext.drawImage(logo, 350, 3, 123, 60);
+    
     // i'm drawing the line right here
-    drawLine(25, 50, 340, 50);
+    drawLine(25, 50, 363, 50);
+
+    currentAnimationImages.forEach((values) => bufferContext.drawImage(...values));
 
     // Fact drawing
     bufferContext.font = '15px "InputSans"';
     drawDisplayText();
 
-    drawLine(25, 207, 455, 207);
+    drawLine(25, 220, 455, 220);
 
-    bufferContext.font = '12px "InputSans"';
-    bufferContext.fillText("Made by Copeland R.", 25, 225);
-    drawLine(86, 230, 169, 230, 0.5); // 61 deltaX to made by, 83 length
+    bufferContext.font = '9px "InputSans"';
+    bufferContext.fillText("Made by Copeland R.", 25, 235);
+    drawLine(71, 240, 132, 243, 0.5); // 61 deltaX to made by, 83 length
 
     bufferContext.font = '7px "InputSans"';
     bufferContext.fillText("Copyright", 419, 235);
@@ -133,11 +149,22 @@ const bufferContext = bufferCanvas.getContext("2d");
 bufferContext.fillStyle = "#000";
 bufferContext.fillRect(0, 0, bufferW, bufferH);
 
-let mouseX = 0;
-let mouseY = 0;
-
+// sorry its my first time doing frontend
 const logo = new Image();
 logo.src = "assets/lumon-logo.png";
+
+const talk = new Image();
+talk.src = "assets/talk.jpg"
+const dial = new Image();
+dial.src = "assets/dial.jpg"
+const walk = new Image();
+walk.src = "assets/walk.jpg"
+const descent = new Image();
+descent.src = "assets/descent.jpg"
+
+let currentAnimationImages = [];
+//[[descent, 25, 85, 106, 74], [walk, 131, 85, 106, 74], [dial, 237, 85, 106, 74],
+// [talk, 343, 85, 106, 74]];
 
 let displayText = "";
 
@@ -204,7 +231,7 @@ const quadCommand = regl({
             vec2 consoleWH = vec2(consoleW, consoleH);
 
             // @todo use uniforms
-            float glitchFlutter = mod(time * 75.0, 1.0); // timed to be slightly out of sync from main frame rate
+            float glitchFlutter = mod(time * 100.0, 1.0); // timed to be slightly out of sync from main frame rate
 
             vec2 center = uvPosition - vec2(0.5);
             float factor = dot(center, center) * 0.2;
@@ -223,7 +250,7 @@ const quadCommand = regl({
                 float intensity = 8.0 - scanlineAmount * 5.0; // ray intensity is over-amped by default
                 vec2 uvAdjustment = inTexelOffset * vec2(0.0, .4 / consoleH); // remove vertical texel interpolation
 
-                distortedUVPosition.x -= 0.006 * (glitchFlutter * glitchFlutter * glitchFlutter);
+                distortedUVPosition.x -= 0.004 * glitchFlutter;
 
                 vec4 sourcePixel = texture2D(
                     sprite,

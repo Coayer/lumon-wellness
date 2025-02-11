@@ -19,7 +19,7 @@ async function presentMessage(filename) {
         });
 
         audio.addEventListener("ended", async () => {
-            await sleep(750);
+            await wait(750);
             setDisplayText("");
             resolve();
         });
@@ -40,12 +40,8 @@ function getRandomizedFactList() {
     return facts;
 }
 
-async function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 setDisplayText(
-    "Click to start wellness session. Adjust headphones for optimal audio therapy."
+    "Click"// to start wellness session"//. Adjust equipment for optimal audio therapy."
 );
 
 window.addEventListener("load", function () {
@@ -61,40 +57,45 @@ window.addEventListener("load", function () {
 let transcripts = {};
 
 async function main() {
-    const elevatorAudio = new Audio("../audio/other/elevator.mp3");
-
-    elevatorAudio.addEventListener(
-        "canplaythrough",
-        () => {
-            elevatorAudio.play();
-        },
-        { once: true }
-    );
-
     setDisplayText("", 0);
-    await sleep(6000);
+
+    await new Promise((resolve) => {
+        const audio = new Audio("../audio/other/elevator.mp3");
+        audio.addEventListener(
+            "canplaythrough",
+            () => {
+                audio.play();
+                animateElevatorImages();
+            },
+            { once: true }
+        );
+
+        audio.addEventListener("ended", () => {
+            resolve();
+        });
+    });
 
     const wellnessAudio = new Audio("../audio/other/music.m4a");
     wellnessAudio.loop = true;
 
     wellnessAudio.addEventListener(
         "canplaythrough",
-        () => {
+        async () => {
             wellnessAudio.play();
+
+            await wait(1500);
+
+            await fetchTranscripts();
+            await presentMessage("hello.m4a");
+
+            const facts = getRandomizedFactList();
+            let i = 0;
+            while (true) {
+                await wait(1000);
+                await presentMessage(facts[i]);
+                i = (i + 1) % facts.length;
+            }
         },
         { once: true }
     );
-
-    await sleep(1000);
-
-    await fetchTranscripts();
-    await presentMessage("hello.m4a");
-
-    const facts = getRandomizedFactList();
-    let i = 0;
-    while (true) {
-        await sleep(1000);
-        await presentMessage(facts[i]);
-        i = (i + 1) % facts.length;
-    }
 }

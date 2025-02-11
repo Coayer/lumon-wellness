@@ -1,14 +1,17 @@
 {
     "hello.m4a": "I'd like to share with you some facts about your Outie. Try to enjoy each fact equally.",
     "scooter.mp3": "Your Outie cares for the safety of others and wears a helmet when riding electric scooters on the sidewalk.",
-    "books.mp3": "Your Outie cherishes their neighbors and swaps books with them at the communal library box.",
+    "books.mp3": "[MAYBE DEL] Your Outie cherishes their neighbors and swaps books with them at the communal library box.",
     "microphone.mp3": "Your Outie has a deep understanding of technology and mutes their microphone when not speaking on video calls.",
     "fashion.mp3": "Your Outie has an exemplary sense of style and understands the difference between smart casual and business casual.",
     "paint.mp3": "Your Outie has an eye for art and appreciates the difference between off-white and eggshell.",
     "meditation.mp3": "Your Outie has unearthed profound truths in meditation and knows that bullies are nothing but bull and lies.",
-    "wildlife.mp3": "Your Outie is a friend of wildlife and uses humane mousetraps.",
+    "wildlife.mp3": "Your Outie is a friend to wildlife and uses humane mousetraps when possible.",
     "cook.mp3": "Your Outie is a splendid cook and knows the perfect amount of time to microwave leftovers.",
     "politics.mp3": "Your Outie is fiercely political and debates at Homeowner Association meetings.",
     "subscription.mp3": "Your Outie is financially wise and cancels subscriptions before the trial period ends.",
-    "sunscreen.mp3": "Your Outie is health-conscious and applies sunscreen whenever the UV index exceeds three."
+    "sunscreen.mp3": "[MAYBE DEL] Your Outie is health-conscious and applies sunscreen whenever the UV index exceeds three.",
+    "mde.mp3": "Your Outie is skilled at playing the theremin and maraca and castanets.",
+    "moonlight.mp3": "Your Outie loves to bathe in sunlight, moonlight and clean air.",
+    "elevator.mp3": "Your Outie held an elevator door open for someone last week."
 }
