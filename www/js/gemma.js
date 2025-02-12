@@ -75,7 +75,7 @@ async function main() {
                 setDisplayText("Elevator going down...", 0);
                 await wait(1100);
                 setDisplayText("Elevator arrived on severed floor.", 15);
-                await wait(2000)
+                await wait(2001)
                 setDisplayText("");
             },
             { once: true }
