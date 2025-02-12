@@ -28,7 +28,7 @@ async function presentMessage(filename) {
 
 function getRandomizedFactList() {
     const facts = Object.keys(transcripts).filter(
-        (fact) => fact !== "hello.m4a"
+        (fact) => fact !== "hello.mp3"
     );
 
     for (let i = facts.length - 1; i > 0; i--) {
@@ -41,7 +41,7 @@ function getRandomizedFactList() {
 }
 
 setDisplayText(
-    "Click"// to start wellness session"//. Adjust equipment for optimal audio therapy."
+    "Click to start wellness session. Adjust equipment for optimal audio therapy.", 28
 );
 
 window.addEventListener("load", function () {
@@ -63,9 +63,20 @@ async function main() {
         const audio = new Audio("../audio/other/elevator.mp3");
         audio.addEventListener(
             "canplaythrough",
-            () => {
+            async () => {
                 audio.play();
-                animateElevatorImages();
+
+                setDisplayText("Elevator going down", 0);
+                await wait(1100);
+                setDisplayText("Elevator going down.", 0);
+                await wait(1100);
+                setDisplayText("Elevator going down..", 0);
+                await wait(1100);
+                setDisplayText("Elevator going down...", 0);
+                await wait(1100);
+                setDisplayText("Elevator arrived on severed floor.", 15);
+                await wait(2000)
+                setDisplayText("");
             },
             { once: true }
         );
@@ -83,10 +94,9 @@ async function main() {
         async () => {
             wellnessAudio.play();
 
-            await wait(1500);
-
+            await wait(4500);
             await fetchTranscripts();
-            await presentMessage("hello.m4a");
+            await presentMessage("hello.mp3");
 
             const facts = getRandomizedFactList();
             let i = 0;

@@ -59,26 +59,12 @@ async function setDisplayText(text, updateDelay = 55) {
     }
 }
 
-async function animateElevatorImages() {
-    currentAnimationImages.push([descent, 25, 90, 106, 74]);
-    await wait();
-    currentAnimationImages.push([walk, 131, 90, 106, 74]);
-    await wait();
-    currentAnimationImages.push([dial, 237, 90, 106, 74]);
-    await wait();
-    currentAnimationImages.push([talk, 343, 90, 106, 74]);
-    await wait();
-    currentAnimationImages = [currentAnimationImages.slice(-1)[0]];
-    await wait(2000);
-    currentAnimationImages = [];
-}
-
 function drawLine(startX, startY, endX, endY, lineWidth = 0.8) {
     bufferContext.strokeStyle = "#68b9cd";
     bufferContext.lineWidth = lineWidth;
     bufferContext.beginPath();
     bufferContext.moveTo(startX, startY); // Starting point (x, y)
-    bufferContext.lineTo(endX, startY); // Ending point (x, y)
+    bufferContext.lineTo(endX, endY); // Ending point (x, y)
     bufferContext.stroke();
 }
 
@@ -86,7 +72,7 @@ function renderWorld() {
     // Clear the buffer
     bufferContext.fillStyle = "#000";
     bufferContext.fillRect(0, 0, bufferW, bufferH);
-    bufferContext.fillStyle = "#68b9cd";
+    bufferContext.fillStyle = "#3ea1ba";
 
     drawLine(25, 15, 363, 15);
 
@@ -109,8 +95,6 @@ function renderWorld() {
     // i'm drawing the line right here
     drawLine(25, 50, 363, 50);
 
-    currentAnimationImages.forEach((values) => bufferContext.drawImage(...values));
-
     // Fact drawing
     bufferContext.font = '15px "InputSans"';
     drawDisplayText();
@@ -119,7 +103,7 @@ function renderWorld() {
 
     bufferContext.font = '9px "InputSans"';
     bufferContext.fillText("Made by Copeland R.", 25, 235);
-    drawLine(71, 240, 132, 243, 0.5); // 61 deltaX to made by, 83 length
+    drawLine(71, 239, 132, 239, 0.5); // 61 deltaX to made by, 83 length
 
     bufferContext.font = '7px "InputSans"';
     bufferContext.fillText("Copyright", 419, 235);
@@ -149,22 +133,8 @@ const bufferContext = bufferCanvas.getContext("2d");
 bufferContext.fillStyle = "#000";
 bufferContext.fillRect(0, 0, bufferW, bufferH);
 
-// sorry its my first time doing frontend
 const logo = new Image();
 logo.src = "assets/lumon-logo.png";
-
-const talk = new Image();
-talk.src = "assets/talk.jpg"
-const dial = new Image();
-dial.src = "assets/dial.jpg"
-const walk = new Image();
-walk.src = "assets/walk.jpg"
-const descent = new Image();
-descent.src = "assets/descent.jpg"
-
-let currentAnimationImages = [];
-//[[descent, 25, 85, 106, 74], [walk, 131, 85, 106, 74], [dial, 237, 85, 106, 74],
-// [talk, 343, 85, 106, 74]];
 
 let displayText = "";
 
@@ -186,7 +156,7 @@ const spriteTexture = regl.texture({
     mag: "linear",
 });
 
-const termFgColor = hex2vector("#68b9cd");
+const termFgColor = hex2vector("#3ea1ba");
 const termBgColor = hex2vector("#002a2a");
 
 const quadCommand = regl({
@@ -230,9 +200,6 @@ const quadCommand = regl({
             // @todo use uniform
             vec2 consoleWH = vec2(consoleW, consoleH);
 
-            // @todo use uniforms
-            float glitchFlutter = mod(time * 100.0, 1.0); // timed to be slightly out of sync from main frame rate
-
             vec2 center = uvPosition - vec2(0.5);
             float factor = dot(center, center) * 0.2;
             vec2 distortedUVPosition = uvPosition + center * (1.0 - factor) * factor;
@@ -250,7 +217,10 @@ const quadCommand = regl({
                 float intensity = 8.0 - scanlineAmount * 5.0; // ray intensity is over-amped by default
                 vec2 uvAdjustment = inTexelOffset * vec2(0.0, .4 / consoleH); // remove vertical texel interpolation
 
-                distortedUVPosition.x -= 0.004 * glitchFlutter;
+                float rawFlutter = mod(time * 100.0, 1.0);
+                float x = (rawFlutter - 0.5) * 4.0; // Shift and scale
+                float glitchFlutter = exp(-x * x); // Gaussian-like falloff
+                distortedUVPosition.x -= 0.006 * clamp(glitchFlutter, 0.2, 0.8);
 
                 vec4 sourcePixel = texture2D(
                     sprite,
