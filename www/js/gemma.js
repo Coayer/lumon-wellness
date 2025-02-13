@@ -5,24 +5,31 @@ async function fetchTranscripts() {
 
 async function presentMessage(filename) {
     return new Promise((resolve) => {
-        console.log("Playing " + filename);
+        console.log(`Playing ${filename}`)
 
-        const audio = new Audio(`../audio/speech/${filename}`);
+        fgAudio.src = `../audio/speech/${filename}`;
+        const transcript = transcripts[filename] || "";
 
-        audio.addEventListener("canplaythrough", () => {
-            const transcript = transcripts[filename] || "";
-            const characterUpdateRate = Math.floor(
-                (audio.duration * 1000) / transcript.length - 10
-            );
-            setDisplayText(transcript, characterUpdateRate);
-            audio.play();
-        });
+        fgAudio.addEventListener(
+            "playing",
+            async () => {
+                const characterUpdateRate = Math.floor(
+                    (fgAudio.duration * 1000) / transcript.length - 10
+                );
+                setDisplayText(transcript, characterUpdateRate);
+            },
+            { once: true }
+        );
 
-        audio.addEventListener("ended", async () => {
-            await wait(750);
-            setDisplayText("");
-            resolve();
-        });
+        fgAudio.addEventListener(
+            "ended",
+            async () => {
+                await wait(750);
+                setDisplayText("");
+                resolve();
+            },
+            { once: true }
+        );
     });
 }
 
@@ -40,72 +47,67 @@ function getRandomizedFactList() {
     return facts;
 }
 
+async function main() {
+    setDisplayText("", 0);
+
+    console.log("Playing elevator.mp3");
+    bgAudio.src = "../audio/other/elevator.mp3";
+    await new Promise((resolve) =>
+        bgAudio.addEventListener("playing", resolve, { once: true })
+    );
+
+    setDisplayText("Elevator going down", 0);
+    await wait(1100);
+    setDisplayText("Elevator going down.", 0);
+    await wait(1100);
+    setDisplayText("Elevator going down..", 0);
+    await wait(1100);
+    setDisplayText("Elevator going down...", 0);
+    await wait(1100);
+    setDisplayText("Elevator arrived on severed floor.", 15);
+    await wait(2001);
+    setDisplayText("");
+
+    console.log("Playing music.m4a");
+    bgAudio.loop = true;
+    bgAudio.src = "../audio/other/music.m4a";
+    await new Promise((resolve) =>
+        bgAudio.addEventListener("playing", resolve, { once: true })
+    );
+
+    await wait(4000);
+    await fetchTranscripts();
+    await presentMessage("hello.mp3");
+
+    const facts = getRandomizedFactList();
+    let i = 0;
+    while (true) {
+        await wait(1000);
+        await presentMessage(facts[i]);
+        i = (i + 1) % facts.length;
+    }
+}
+
+let bgAudio = null;
+let fgAudio = null;
+
+let transcripts = {};
+
 setDisplayText(
-    "Click to start wellness session. Adjust equipment for optimal audio therapy.", 28
+    "Click to start wellness session. Adjust audio equipment for optimal relaxation.",
+    28
 );
 
 window.addEventListener("load", function () {
     document.body.addEventListener(
         "click",
-        async () => {
-            await main();
+        () => {
+            bgAudio = new Audio();
+            bgAudio.autoplay = true;
+            fgAudio = new Audio();
+            fgAudio.autoplay = true;
+            main();
         },
         { once: true }
     );
 });
-
-let transcripts = {};
-
-async function main() {
-    setDisplayText("", 0);
-
-    await new Promise((resolve) => {
-        const audio = new Audio("../audio/other/elevator.mp3");
-        audio.addEventListener(
-            "canplaythrough",
-            async () => {
-                audio.play();
-
-                setDisplayText("Elevator going down", 0);
-                await wait(1100);
-                setDisplayText("Elevator going down.", 0);
-                await wait(1100);
-                setDisplayText("Elevator going down..", 0);
-                await wait(1100);
-                setDisplayText("Elevator going down...", 0);
-                await wait(1100);
-                setDisplayText("Elevator arrived on severed floor.", 15);
-                await wait(2001)
-                setDisplayText("");
-            },
-            { once: true }
-        );
-
-        audio.addEventListener("ended", () => {
-            resolve();
-        });
-    });
-
-    const wellnessAudio = new Audio("../audio/other/music.m4a");
-    wellnessAudio.loop = true;
-
-    wellnessAudio.addEventListener(
-        "canplaythrough",
-        async () => {
-            wellnessAudio.play();
-
-            await wait(4500);
-            await fetchTranscripts();
-            await presentMessage("hello.mp3");
-
-            const facts = getRandomizedFactList();
-            let i = 0;
-            while (true) {
-                await wait(1000);
-                await presentMessage(facts[i]);
-                i = (i + 1) % facts.length;
-            }
-        },
-        { once: true }
-    );
-}

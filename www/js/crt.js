@@ -12,9 +12,10 @@ function handleMouseDown(event) {
     const clickX = (event.clientX - rect.left) / rect.width;
     const clickY = (event.clientY - rect.top) / rect.height;
     // console.log(clickX, clickY);
-    if (clickX < 0.38 && clickY > 0.84) {
-        window.open("https://copey.dev", "_blank");
-    } else if (clickX > 0.84 && clickY > 0.89) {
+
+    // IDENTITY_LINK
+    
+    if (clickX > 0.84 && clickY > 0.89) {
         window.open("/copyright.txt", "_blank");
     }
 }
@@ -92,7 +93,7 @@ function renderWorld() {
     // Lumon Logo
     bufferContext.drawImage(logo, 350, 3, 123, 60);
     
-    // i'm drawing the line right here
+    // i'm drawing the line right here yall
     drawLine(25, 50, 363, 50);
 
     // Fact drawing
@@ -102,8 +103,7 @@ function renderWorld() {
     drawLine(25, 220, 455, 220);
 
     bufferContext.font = '9px "InputSans"';
-    bufferContext.fillText("Made by Copeland R.", 25, 235);
-    drawLine(71, 239, 132, 239, 0.5); // 61 deltaX to made by, 83 length
+    // IDENTITY_TEXT
 
     bufferContext.font = '7px "InputSans"';
     bufferContext.fillText("Copyright", 419, 235);
