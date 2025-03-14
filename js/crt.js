@@ -13,7 +13,9 @@ function handleMouseDown(event) {
     const clickY = (event.clientY - rect.top) / rect.height;
     // console.log(clickX, clickY);
 
-    // IDENTITY_LINK
+    if (clickX < 0.38 && clickY > 0.84) {
+        window.open("https:\/\/copey.dev", "_blank");
+    }
     
     if (clickX > 0.84 && clickY > 0.89) {
         window.open("/copyright.txt", "_blank");
@@ -103,7 +105,8 @@ function renderWorld() {
     drawLine(25, 220, 455, 220);
 
     bufferContext.font = '9px "InputSans"';
-    // IDENTITY_TEXT
+    bufferContext.fillText("Made by Copeland R.", 25, 235);
+    drawLine(71, 239, 132, 239, 0.5);
 
     bufferContext.font = '7px "InputSans"';
     bufferContext.fillText("Copyright", 419, 235);
